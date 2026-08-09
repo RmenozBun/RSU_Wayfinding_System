@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="map"></div>
+<div id="controls">
+  <select id="to-select">
+    <option value="">-- เลือกอาคาร --</option>
+  </select>
+  <button id="mic-btn">🎤</button>
+  <button id="find-route-btn">หาเส้นทาง</button>
+</div>
+<div id="direction-arrow">↑</div>
+<div id="out-of-rsu" class="hidden">
+  <div class="ooc-content">
+    <span class="ooc-icon">📍</span>
+    <h2>อยู่นอกพื้นที่</h2>
+    <p>เว็บนี้ใช้งานได้เฉพาะภายใน<br>มหาวิทยาลัยรังสิตเท่านั้น</p>
+  </div>
+</div>
+{% endblock %}

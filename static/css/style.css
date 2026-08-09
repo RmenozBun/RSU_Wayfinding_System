@@ -1,0 +1,283 @@
+/* Reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    /* Palette */
+    --white:      #ffffff;
+    --grey-100:   #f5f5f5;
+    --grey-200:   #e8e8e8;
+    --grey-400:   #b0b0b0;
+    --grey-600:   #6b6b6b;
+    --grey-800:   #2d2d2d;
+    --black:      #111111;
+
+    /* Accent — เส้นนำทาง/action เดียวในหน้า */
+    --accent:     #1a1a1a;
+
+    /* Semantic */
+    --surface:    var(--white);
+    --border:     var(--grey-200);
+    --text-main:  var(--grey-800);
+    --text-muted: var(--grey-600);
+
+    /* Spacing */
+    --r-sm:  8px;
+    --r-md:  12px;
+    --r-lg:  20px;
+
+    /* Shadow */
+    --shadow-sm: 0 1px 4px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+body {
+    font-family: 'Sarabun', 'Noto Sans Thai', sans-serif;
+    font-size: 15px;
+    color: var(--text-main);
+    background: var(--black);
+    overflow: hidden;
+}
+
+/* เต็มหน้าจอเสมอ — controls ลอยทับ */
+#map {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+/* แถบบนสุด — slide ขึ้นออกเมื่อนำทาง */
+#controls {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    padding-top: max(12px, env(safe-area-inset-top));
+
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+}
+
+#controls.hide {
+    transform: translateY(-110%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#controls:not(.hide) {
+    transform: translateY(0);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dropdown อาคาร */
+#to-select {
+    flex: 1;
+    min-width: 0;
+
+    height: 44px;
+    padding: 0 12px;
+    border-radius: var(--r-sm);
+    border: 1.5px solid var(--border);
+    background: var(--grey-100);
+    color: var(--text-main);
+    font-size: 14px;
+    font-family: inherit;
+
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 32px;
+
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+#to-select:focus {
+    border-color: var(--grey-600);
+    background-color: var(--white);
+}
+
+/* ปุ่มไมค์ */
+#mic-btn {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--r-sm);
+    border: 1.5px solid var(--border);
+    background: var(--grey-100);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+#mic-btn:active {
+    background: var(--grey-200);
+    border-color: var(--grey-400);
+}
+
+/* ปุ่มหาเส้นทาง */
+#find-route-btn {
+    flex-shrink: 0;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: var(--r-sm);
+    border: none;
+    background: var(--black);
+    color: var(--white);
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, opacity 0.15s;
+}
+
+#find-route-btn:active {
+    opacity: 0.75;
+}
+
+/* ลอยอยู่กลางล่าง — ชัดบนแผนที่ทุกโทนสี */
+#direction-arrow {
+    position: fixed;
+    bottom: 48px;
+    left: 50%;
+    transform: translateX(-50%) rotate(0deg);
+    transform-origin: center center;
+
+    width: 56px;
+    height: 56px;
+
+    background: var(--black);
+    border-radius: 50%;
+
+    color: var(--white);
+    font-size: 26px;
+    line-height: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: var(--shadow-md);
+    z-index: 1001;
+    transition: transform 0.15s linear;
+
+    /* ซ่อนจนกว่าจะเริ่มนำทาง */
+    opacity: 0;
+    pointer-events: none;
+}
+
+#direction-arrow.visible {
+    opacity: 1;
+}
+
+/* ให้ popup สอดคล้องกับ monochromatic theme */
+.leaflet-popup-content-wrapper {
+    border-radius: var(--r-sm) !important;
+    box-shadow: var(--shadow-md) !important;
+    font-family: inherit !important;
+    font-size: 13px !important;
+    color: var(--text-main) !important;
+    padding: 0 !important;
+}
+
+.leaflet-popup-content {
+    margin: 10px 14px !important;
+    font-family: inherit !important;
+}
+
+.leaflet-popup-tip {
+    box-shadow: none !important;
+}
+
+#mic-btn.listening {
+    background: #111111;
+    border-color: #111111;
+    color: white;
+    animation: pulse 1.2s ease-in-out infinite;
+}
+
+#out-of-rsu {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+#out-of-rsu.hidden {
+    display: none;
+}
+
+.ooc-content {
+    padding: 32px;
+}
+
+.ooc-icon {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 16px;
+}
+
+.ooc-content h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--grey-800);
+    margin-bottom: 8px;
+}
+
+.ooc-content p {
+    font-size: 15px;
+    color: var(--grey-600);
+    line-height: 1.6;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(17,17,17,0.4); }
+    50%       { box-shadow: 0 0 0 8px rgba(17,17,17,0); }
+}
+
+/* Responsive mobile-first แต่ปรับ safe area สำหรับ notch */
+@media (max-width: 768px) {
+    #controls {
+        padding: 10px 12px;
+        padding-top: max(10px, env(safe-area-inset-top));
+        gap: 6px;
+    }
+
+    #find-route-btn {
+        padding: 0 12px;
+        font-size: 13px;
+    }
+
+    #to-select {
+        font-size: 13px;
+    }
+}
+
+/* reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    #controls, #direction-arrow {
+        transition: none;
+    }
+}
